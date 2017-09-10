@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'org.jenkins-ci.plugins'
-version = '2.2.1'
+version = '2.3'
 description = """This plugin integrates Jenkins users with Selenium Testing on CrossBrowserTesting.com. CrossBrowserTesting.com provides cross browser testing of websites, webpages, and web applications on Windows, Macs, and real iPhones, iPads, and Android Phones and Tablets."""
 
 sourceCompatibility = 1.8
@@ -68,11 +68,12 @@ release {
 dependencies {
     compile group: 'org.json', name: 'json', version:'20151123'
     compile group: 'commons-codec', name: 'commons-codec', version:'1.9'
-    compile group: 'com.github.crossbrowsertesting', name: 'ci-common', version:'1.0'
+    compile group: 'com.github.crossbrowsertesting', name: 'ci-common', version:'1.2.3'
     testCompile group: 'org.codehaus.mojo', name: 'findbugs-maven-plugin', version: '3.0.4'
 
     jenkinsPlugins group: 'org.jenkins-ci.plugins', name: 'junit', version: '1.9', ext: 'jar'
     jenkinsPlugins group: 'org.jenkins-ci.plugins', name: 'credentials', version: '2.1.12', ext: 'jar'
+    jenkinsPlugins group: 'org.jenkins-ci.plugins.workflow', name: 'workflow-step-api', version: '2.12', ext: 'jar'
 }
 
 /*
