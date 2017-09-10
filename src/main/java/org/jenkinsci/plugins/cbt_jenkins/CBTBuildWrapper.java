@@ -434,7 +434,7 @@ public class CBTBuildWrapper extends BuildWrapper implements Serializable {
 				for (ScreenshotsBuildAction ss : build.getActions(ScreenshotsBuildAction.class)) {
 					log.fine("found a screenshot test");
 					// checks each screenshot_test_id to see if the test is finished
-					if(getDescriptor().screenshotApi.isTestRunning(ss.getTestId())) {
+					if(getDescriptor().screenshotApi.testIsRunning(ss.getTestId())) {
 						if (count == 1) { // no need to spam the logs with this print statement
 							listener.getLogger().println("waiting for screenshots tests to finish...");
 						}
