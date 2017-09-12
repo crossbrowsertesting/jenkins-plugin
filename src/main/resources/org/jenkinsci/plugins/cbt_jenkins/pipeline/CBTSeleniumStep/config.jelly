@@ -1,0 +1,19 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form" xmlns:c="/lib/credentials">
+    <f:block>
+    <table width="100%">
+    <f:entry title="Operating System" field="operatingSystem">
+        <f:select value="${instance.operatingSystem}" />
+    </f:entry>
+    <f:entry title="Browser" field="browser">
+        <f:select value="${instance.browser}" />
+    </f:entry>
+    <f:entry title="Screen Resolution" field="resolution">
+        <f:select value="${instance.resolution}" />
+    </f:entry>
+    </table>
+    <f:invisibleEntry title="CBT Credentials" field="credentialsId">
+        <c:select value="${instance.credentialsId()}"/>
+    </f:invisibleEntry>
+    </f:block>
+</j:jelly>

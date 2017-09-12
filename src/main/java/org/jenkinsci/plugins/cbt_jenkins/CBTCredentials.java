@@ -7,7 +7,11 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.servlet.ServletException;
 
+import com.cloudbees.plugins.credentials.common.StandardUsernameListBoxModel;
+import hudson.util.ListBoxModel;
+import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
 
 import com.cloudbees.plugins.credentials.CredentialsDescriptor;
@@ -37,8 +41,10 @@ public class CBTCredentials extends BaseStandardCredentials implements StandardU
     public final static DomainRequirement DOMAIN_REQUIREMENT = new HostnamePortRequirement("crossbrowsertesting.com", 443);
 	
 	@DataBoundConstructor
-	public CBTCredentials(@CheckForNull String username, @CheckForNull String authkey) {
-		super(CredentialsScope.GLOBAL, String.valueOf(username.concat(authkey).hashCode()), "");
+	public CBTCredentials(@CheckForNull CredentialsScope scope,
+                          @CheckForNull String username, @CheckForNull String authkey,
+                          @CheckForNull String id, @CheckForNull String description) {
+            super(scope, id, description);
 		this.username = username;
 		this.authkey = Secret.fromString(authkey);
 	}
@@ -73,6 +79,29 @@ public class CBTCredentials extends BaseStandardCredentials implements StandardU
             matcher = CredentialsMatchers.always();
         }
         return CredentialsMatchers.firstOrDefault(creds, matcher,creds.get(0));
+    }
+    public static CBTCredentials getCredentialsById(Item context, String id) {
+	    if (id == null) {
+	        return null;
+        } else {
+            return CredentialsMatchers.firstOrNull(
+                    CBTCredentials.all((Item) context),
+                    CredentialsMatchers.withId(id)
+            );
+        }
+    }
+    public static ListBoxModel fillCredentialsIdItems(final @AncestorInPath ItemGroup<?> context) {
+        return new StandardUsernameListBoxModel().withAll(CBTCredentials.all(context));
+    }
+    public static FormValidation testCredentials(final String username, final String authkey) {
+        Account account = new Account(username, authkey);
+        account.init();
+        if (account.connectionSuccessful) {
+            account.sendMixpanelEvent("Jenkins Plugin Downloaded"); //track install
+            return FormValidation.ok(Constants.AUTH_SUCCESS);
+        } else {
+            return FormValidation.error(Constants.AUTH_FAIL);
+        }
     }
     @Extension
     public static class DescriptorImpl extends CredentialsDescriptor {

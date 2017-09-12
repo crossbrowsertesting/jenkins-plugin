@@ -1,0 +1,26 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form" xmlns:c="/lib/credentials">
+<f:block>
+<f:entry title="Use Local Tunnel" description="Runs the nodejs cbt_tunnels module" help="/plugin/crossbrowsertesting/help/localtunnel.html" field="useLocalTunnel">
+    <f:checkbox value="${instance.useLocalTunnel()}"/>
+</f:entry>
+    <!--
+<f:entry title="Enable Test Results Pages" description="As tests finish, links will populate on the sidebar of the build that allow you to view the results from the test." field="useTestResults">
+    <f:checkbox value="${instance.useTestResults()}"/>
+</f:entry>
+-->
+<f:entry title="CBT Credentials" field="credentialsId">
+    <c:select default="${instance.credentialsId()}"/>
+</f:entry>
+    <!--
+<f:advanced>
+    <f:entry title="Local Tunnel Binary Path" field="localTunnelPath" description="Full path to a preinstalled cbt_tunnel binary. If left blank, the plugin will use an embedded cbt_tunnel.">
+        <f:textbox value="${instance.localTunnelPath()}" />
+    </f:entry>
+    <f:entry title="Tunnel Name" field="tunnelName" description="Specify a name for the cbt_tunnel. If left blank, the plugin will use the default cbt_tunnel.">
+        <f:textbox value="${instance.tunnelName()}" />
+    </f:entry>
+</f:advanced>
+-->
+</f:block>
+</j:jelly>
