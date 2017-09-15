@@ -17,6 +17,9 @@
   			<f:entry name="screenshotsBrowserList" title="Browser List" field="browserList" >
  				<f:select value="${screenshotsTests.browserList}"/>
  			</f:entry>
+			<f:entry name="screenshotsLoginProfile" title="Login Profile" field="loginProfile" >
+				<f:select value="${screenshotsTests.loginProfile}"/>
+			</f:entry>
  			<f:entry name="screenshotsUrl" title="URL" field="url" >
  				<f:textbox value="${screenshotsTests.url}" />
  			</f:entry>

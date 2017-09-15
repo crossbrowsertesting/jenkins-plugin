@@ -172,9 +172,12 @@ public final class CBTDescriptor extends BuildWrapperDescriptor {
         return items;
     }
     public ListBoxModel doFillBrowserListItems() {
-    	screenshotApi = new Screenshots(getUsername(), getAuthkey());
-    	checkProxySettingsAndReloadRequest(screenshotApi);
+		if (screenshotApi == null) {
+			screenshotApi = new Screenshots(getUsername(), getAuthkey());
+			checkProxySettingsAndReloadRequest(screenshotApi);
+		}
 		ListBoxModel items = new ListBoxModel();
+		items.add("**SELECT A BROWSERLIST**");
 		try {
 	        for (int i=0 ; i<screenshotApi.browserLists.size() ; i++) {
 	        	String browserList = screenshotApi.browserLists.get(i);
@@ -183,6 +186,21 @@ public final class CBTDescriptor extends BuildWrapperDescriptor {
     	} catch(NullPointerException npe) {}
         return items;
     }
+	public ListBoxModel doFillLoginProfileItems() {
+		if (screenshotApi == null) {
+			screenshotApi = new Screenshots(getUsername(), getAuthkey());
+			checkProxySettingsAndReloadRequest(screenshotApi);
+		}
+		ListBoxModel items = new ListBoxModel();
+		items.add("**SELECT A LISTPROFILE**");
+		try {
+			for (int i=0 ; i<screenshotApi.loginProfiles.size() ; i++) {
+				String loginProfile = screenshotApi.loginProfiles.get(i);
+				items.add(loginProfile);
+			}
+		} catch(NullPointerException npe) {}
+		return items;
+	}
     public ListBoxModel doFillCredentialsIdItems(final @AncestorInPath ItemGroup<?> context) {
     	return new StandardUsernameListBoxModel().withAll(CBTCredentials.all(context));
     }
