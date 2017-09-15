@@ -12,7 +12,8 @@ public class ScreenshotsBuildAction  extends AbstractBuildAction {
 	private String browserList,
 				   url,
 				   versionId,
-				   downloadResultsZipPublicUrl;
+				   downloadResultsZipPublicUrl,
+			       loginProfile = "";
 	
 	private HashMap<String, String> testinfo;
 	
@@ -38,6 +39,12 @@ public class ScreenshotsBuildAction  extends AbstractBuildAction {
 	}
 	public String getDownloadResultsZipPublicUrl() {
 		return downloadResultsZipPublicUrl;
+	}
+	public void setLoginProfile(String loginProfile) {
+		this.loginProfile = loginProfile;
+	}
+	public String getLoginProfile() {
+		return loginProfile;
 	}
 	public HashMap<String, String> getTestinfo() {
 		return testinfo;

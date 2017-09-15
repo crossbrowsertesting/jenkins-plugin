@@ -234,11 +234,25 @@ public class CBTBuildWrapper extends BuildWrapper implements Serializable {
     			//System.out.println("in screenshot loop");
 	    		JSONObject ssTest = screenshotsIterator.next();
     			String screenshotsBrowserList = ssTest.getString("browserList");
-    			String screenshotsUrl = ssTest.getString("url");
+    			if (screenshotsBrowserList.equals("**SELECT A BROWSERLIST*")) {
+    				screenshotsBrowserList = "";
+				}
+				String screenshotsLoginProfile = ssTest.getString("loginProfile");
+    			boolean useLoginProfile = true;
+				if (screenshotsLoginProfile.equals("**SELECT A LISTPROFILE**") || screenshotsLoginProfile.isEmpty()) {
+					useLoginProfile = false;
+					screenshotsLoginProfile = "";
+				}
+
+				String screenshotsUrl = ssTest.getString("url");
 				HashMap<String, String> screenshotTestResultsInfo = new HashMap<String, String>();
 				boolean screenshotsTestStarted = false;
     			for (int i=1; i<=12 && !screenshotsTestStarted;i++) { // in windows it takes 4 -5 attempts before the screenshots test begins
-					screenshotTestResultsInfo = getDescriptor().screenshotApi.runScreenshotTest(screenshotsBrowserList, screenshotsUrl);
+					if (useLoginProfile) {
+						screenshotTestResultsInfo = getDescriptor().screenshotApi.runScreenshotTest(screenshotsBrowserList, screenshotsUrl, screenshotsLoginProfile);
+					}else {
+						screenshotTestResultsInfo = getDescriptor().screenshotApi.runScreenshotTest(screenshotsBrowserList, screenshotsUrl);
+					}
 					if (screenshotTestResultsInfo.containsKey("screenshot_test_id") && screenshotTestResultsInfo.get("screenshot_test_id") != null) {
 						log.info("screenshot test started: "+ screenshotTestResultsInfo.get("screenshot_test_id"));
 						screenshotsTestStarted = true;
@@ -255,6 +269,7 @@ public class CBTBuildWrapper extends BuildWrapper implements Serializable {
 					ScreenshotsBuildAction ssBuildAction = new ScreenshotsBuildAction(useTestResults, screenshotsBrowserList, screenshotsUrl);
 					ssBuildAction.setBuild(build);
 					ssBuildAction.setTestinfo(screenshotTestResultsInfo);
+					ssBuildAction.setLoginProfile(screenshotsLoginProfile);
 		    		build.addAction(ssBuildAction);
 		    		if (!screenshotTestResultsInfo.isEmpty()) {
 		    			listener.getLogger().println("\n-----------------------");
