@@ -65,9 +65,14 @@
 		   description="As tests finish, links will populate on the sidebar of the build that allow you to view the results from the test.">
     <f:checkbox value="${instance.useTestResults()}"/>
   </f:entry>
+	  <f:entry title="Use New Selenium Capabilites" field="useNewSeleniumCaps"
+			   description="https://help.crossbrowsertesting.com/selenium-testing/getting-started/crossbrowsertesting-automation-capabilities/?_ga=2.205134608.1879839514.1520265198-391782958.1517941414">
+		  <f:checkbox value="${instance.useNewSeleniumCaps()}"/>
+	  </f:entry>
   <f:entry title="CBT Credentials" field="credentialsId">
   	<c:select default="${instance.credentialsId()}"/>
   </f:entry>
+
   <f:advanced>
   	<f:entry title="Local Tunnel Binary Path" field="localTunnelPath"
 			 description="Full path to a preinstalled cbt_tunnel binary. If left blank, the plugin will use an embedded cbt_tunnel.">

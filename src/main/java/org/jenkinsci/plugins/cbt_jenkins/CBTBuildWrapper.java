@@ -2,6 +2,9 @@ package org.jenkinsci.plugins.cbt_jenkins;
 
 import com.crossbrowsertesting.api.Account;
 import com.crossbrowsertesting.api.LocalTunnel;
+import com.crossbrowsertesting.configurations.Browser;
+import com.crossbrowsertesting.configurations.OperatingSystem;
+import com.crossbrowsertesting.configurations.Resolution;
 import com.crossbrowsertesting.plugin.Constants;
 import hudson.Launcher;
 import hudson.model.AbstractBuild;
@@ -22,9 +25,11 @@ import java.util.logging.Logger;
 public class CBTBuildWrapper extends BuildWrapper implements Serializable {
 
 	private LocalTunnel tunnel;
-	private boolean useLocalTunnel,
-					useTestResults;
-    private List <JSONObject> seleniumTests,
+	private boolean useLocalTunnel;
+	private boolean useTestResults;
+	private boolean useNewSeleniumCaps;
+
+	private List <JSONObject> seleniumTests,
     						  screenshotsTests;
     private String localTunnelPath,
     			   tunnelName,
@@ -35,7 +40,7 @@ public class CBTBuildWrapper extends BuildWrapper implements Serializable {
     private final static Logger log = Logger.getLogger(CBTBuildWrapper.class.getName());
 
     @DataBoundConstructor
-    public CBTBuildWrapper(List<JSONObject> screenshotsTests, List<JSONObject> seleniumTests, boolean useLocalTunnel, boolean useTestResults, String credentialsId, String tunnelName, String localTunnelPath) {
+    public CBTBuildWrapper(List<JSONObject> screenshotsTests, List<JSONObject> seleniumTests, boolean useLocalTunnel, boolean useTestResults, boolean useNewSeleniumCaps, String credentialsId, String tunnelName, String localTunnelPath) {
     	/*
     	 * Instantiated when the configuration is saved
     	 * Fields in config.jelly must match the parameter names in the "DataBoundConstructor"
@@ -51,6 +56,7 @@ public class CBTBuildWrapper extends BuildWrapper implements Serializable {
     	//advanced options
 		setTunnelName(tunnelName);
     	setLocalTunnelPath(localTunnelPath);
+    	setUseNewSeleniumCaps(useNewSeleniumCaps);
 		log.exiting(this.getClass().getName(), "constructor");
 	}
 
@@ -75,6 +81,9 @@ public class CBTBuildWrapper extends BuildWrapper implements Serializable {
     public String getTunnelName() {
     	return this.tunnelName;
     }
+    public boolean getUseNewSeleniumCaps() {
+    	return this.useNewSeleniumCaps;
+	}
 
     private void setSeleniumTests(List<JSONObject> seleniumTests) {
 		if (seleniumTests == null) { // prevent null pointer
@@ -130,6 +139,17 @@ public class CBTBuildWrapper extends BuildWrapper implements Serializable {
 			}
 		} catch (NullPointerException npe) {
 			this.useTestResults = false;
+		}
+	}
+	private void setUseNewSeleniumCaps(boolean useNewSeleniumCaps) {
+		try { // prevent null pointer
+			if (useNewSeleniumCaps != true) {
+				this.useNewSeleniumCaps = false;
+			} else {
+				this.useNewSeleniumCaps = useNewSeleniumCaps;
+			}
+		} catch (NullPointerException npe) {
+			this.useNewSeleniumCaps = false;
 		}
 	}
 	private void setCredentials(String credentialsId) {
@@ -328,21 +348,70 @@ public class CBTBuildWrapper extends BuildWrapper implements Serializable {
     		JSONArray browsers = new JSONArray();
     		log.finest("seleniumTests.size(): "+seleniumTests.size());
     		for (JSONObject config : seleniumTests) {
-    			config = addBrowserNameToJSONObject(config);
-    			//makeSeleniumBuildActionFromJSONObject(config);
-				browsers.put(config);
+    			System.out.println(config);
+    			if (useNewSeleniumCaps) {
+					String operatingSystemApiName = config.getString("operating_system");
+					String browserApiName = config.getString("browser");
+					String resolution = config.getString("resolution");
+					OperatingSystem os = getDescriptor().seleniumApi.operatingSystems2.get(operatingSystemApiName);
+					System.out.println(os.getName());
+					System.out.println(os.getPlatform());
+					System.out.println(os.getPlatformName());
+					System.out.println(os.getPlatformVersion());
+
+					Browser browser = os.browsers2.get(browserApiName);
+					Resolution res = os.resolutions2.get(resolution);
+					JSONObject j_browser = new JSONObject();
+					j_browser.put("browserName", getDescriptor().seleniumApi.operatingSystems2.get(operatingSystemApiName).browsers2.get(browserApiName).getBrowserName());
+					System.out.println("os.isMobile()" + getDescriptor().seleniumApi.operatingSystems2.get(operatingSystemApiName).isMobile());
+					j_browser.put("isMobile", os.isMobile());
+					if (os.isMobile()) {
+						j_browser.put("deviceName", os.getDeviceName());
+						j_browser.put("platformVersion", os.getPlatformVersion());
+						j_browser.put("platformName", os.getPlatformName());
+						j_browser.put("deviceOrientation", res.getDeviceOrientation());
+					} else {
+						j_browser.put("version", browser.getVersion());
+						j_browser.put("platform", os.getPlatform());
+						j_browser.put("screenResolution", res.getScreenResolution());
+					}
+					browsers.put(j_browser);
+
+				} else {
+					config = addBrowserNameToJSONObject(config);
+					//makeSeleniumBuildActionFromJSONObject(config);
+					browsers.put(config);
+				}
     		}
+
         	if ( seleniumTests.size() == 1 ){
         		JSONObject seTest = seleniumTests.get(0);
-        		seTest = addBrowserNameToJSONObject(seTest);
-    			String operatingSystemApiName = seTest.getString("operating_system");
-    			String browserApiName = seTest.getString("browser");
-    			String resolution = seTest.getString("resolution");
-    			String browserName = seTest.getString("browserName");
-    			env.put(Constants.OPERATINGSYSTEM, operatingSystemApiName);
-    			env.put(Constants.BROWSER, browserApiName);
-    			env.put(Constants.RESOLUTION, resolution);
-    			env.put(Constants.BROWSERNAME, browserName);
+				String operatingSystemApiName = seTest.getString("operating_system");
+				String browserApiName = seTest.getString("browser");
+				String resolution = seTest.getString("resolution");
+        		if (useNewSeleniumCaps) {
+        			OperatingSystem os = getDescriptor().seleniumApi.operatingSystems2.get(operatingSystemApiName);
+					Browser browser = os.browsers2.get(browserApiName);
+					Resolution res = os.resolutions2.get(resolution);
+					env.put(Constants.BROWSERNAME, browser.getBrowserName());
+					env.put("CBT_ISMOBILE", String.valueOf(os.isMobile()));
+					if (os.isMobile()) {
+						env.put("CBT_DEVICENAME", os.getDeviceName());
+						env.put("CBT_PLATFORMVERSION", os.getPlatformVersion());
+						env.put("CBT_PLATFORMNAME", os.getPlatformName());
+						env.put("CBT_DEVICEORIENTATION", res.getDeviceOrientation());
+					} else {
+						env.put("CBT_VERSION", browser.getVersion());
+						env.put("CBT_PLATFORM", os.getPlatform());
+						env.put("CBT_SCREENRESOLUTION", res.getScreenResolution());
+					}
+				} else {
+					String browserName = seTest.getString("browserName");
+					env.put(Constants.OPERATINGSYSTEM, operatingSystemApiName);
+					env.put(Constants.BROWSER, browserApiName);
+					env.put(Constants.RESOLUTION, resolution);
+					env.put(Constants.BROWSERNAME, browserName);
+				}
         	}
     		env.put(Constants.BROWSERS, browsers.toString());
     		env.put(Constants.USERNAME, username);

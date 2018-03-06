@@ -7,7 +7,7 @@ plugins {
 }
 
 group = 'org.jenkins-ci.plugins'
-version = '2.3.1'
+version = '2.4'
 description = """This plugin integrates Jenkins users with Selenium Testing on CrossBrowserTesting.com. CrossBrowserTesting.com provides cross browser testing of websites, webpages, and web applications on Windows, Macs, and real iPhones, iPads, and Android Phones and Tablets."""
 
 sourceCompatibility = 1.8
@@ -69,7 +69,7 @@ release {
 dependencies {
     compile group: 'org.json', name: 'json', version:'20151123'
     compile group: 'commons-codec', name: 'commons-codec', version:'1.9'
-    compile group: 'com.github.crossbrowsertesting', name: 'ci-common', version:'1.2.3'
+    compile group: 'com.github.crossbrowsertesting', name: 'ci-common', version:'1.3.2'
     testCompile group: 'org.codehaus.mojo', name: 'findbugs-maven-plugin', version: '3.0.4'
 
     jenkinsPlugins group: 'org.jenkins-ci.plugins', name: 'junit', version: '1.9', ext: 'jar'
